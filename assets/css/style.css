@@ -1,0 +1,89 @@
+body {
+    font-family: 'Share Tech Mono', monospace;
+    background-color: #000;
+    color: #0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#terminal {
+    padding: 20px;
+    width: 80vw;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+#header {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+#attempts {
+    margin-top: 10px;
+    display: flex;
+
+}
+
+#attempt-blocks {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+#game-container {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.boot-number {
+    padding-right: 1ch;
+    display: inline-block;
+}
+
+#columns {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+}
+
+#column1, #column2 {
+    width: 45%;
+    padding-right: 10px;
+    overflow-y: auto;
+}
+
+#selection-history {
+    font-size: 25px;
+    width: 30%;
+    padding-left: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+p {
+    font-size: 25px;
+    display: inline-block;
+    margin: 2px 0px;
+    letter-spacing: 2px; /* Spacing between individual letters, this makes the words fit with the characters */
+}
+
+.selectable {
+    cursor: pointer;
+}
+
+.selectable:hover {
+    background-color: #0f0;
+    color: #000;
+}
+
+.history-entry {
+    margin-bottom: 5px;
+}
