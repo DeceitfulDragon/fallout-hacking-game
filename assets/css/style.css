@@ -72,7 +72,7 @@ p {
     font-size: 25px;
     display: inline-block;
     margin: 2px 0px;
-    letter-spacing: 2px; /* Spacing between individual letters, this makes the words fit with the characters */
+    letter-spacing: 1.5px; /* Spacing between individual letters, this makes the words fit with the characters */
 }
 
 .selectable {
