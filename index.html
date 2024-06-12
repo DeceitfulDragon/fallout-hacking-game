@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RobCo Termlink</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- The font Fallout 4 uses for its terminals -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="terminal">
+        <!-- Header Row -->
+        <div id="header">
+            <h1>Welcome to ROBCO Industries (TM) Termlink</h1>
+            <h2>Password Required</h2>
+            <h2 id="attempts">Attempts Remaining: <span id="attempt-blocks"></span></h2>
+        </div>
+        <!-- Interactive Hacking Row -->
+        <div id="game-container">
+            <div id="columns">
+                <div id="column1"></div>
+                <div id="column2"></div>
+                <!-- History -->
+                <div id="selection-history"></div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/script.js"></script> <!-- Hacking Script -->
+    <script src="assets/js/words.js"></script> <!-- Word List by Difficulty -->
+</body>
+</html>
