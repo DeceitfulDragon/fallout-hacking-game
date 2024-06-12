@@ -7,26 +7,27 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    font-size: 30px;
+    background-color: rgb(15, 15, 15);
 }
 
 #terminal {
     padding: 20px;
-    width: 80vw;
-    height: 80vh;
+    width: 55vw;
+    height: 90vh;
+    max-width: 1350px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    background-color: black;
 }
 
 #header {
     text-align: left;
-    margin-bottom: 20px;
 }
 
 #attempts {
-    margin-top: 10px;
     display: flex;
-
 }
 
 #attempt-blocks {
@@ -41,38 +42,48 @@ body {
     height: 100%;
 }
 
-.boot-number {
-    padding-right: 1ch;
-    display: inline-block;
-}
-
 #columns {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     width: 100%;
-    height: 100%;
+    height: auto;
 }
 
 #column1, #column2 {
-    width: 45%;
-    padding-right: 10px;
-    overflow-y: auto;
+    width: 40%;
+    display: flex;
+    flex-direction: column;
 }
 
 #selection-history {
-    font-size: 25px;
-    width: 30%;
-    padding-left: 10px;
+    width: 35%;
     overflow-y: auto;
     display: flex;
     flex-direction: column-reverse;
+    justify-content: flex-end;
+}
+
+h1 {
+    font-size: 32px;
+    margin: 15px 0;
+}
+
+h2, h3 {
+    font-size: 30px;
+    margin: 15px 0;
 }
 
 p {
-    font-size: 25px;
     display: inline-block;
-    margin: 2px 0px;
-    letter-spacing: 1.5px; /* Spacing between individual letters, this makes the words fit with the characters */
+    margin: 2px 0;
+    letter-spacing: 1.5px; /* Spacing between individual letters */
+}
+
+.boot-number {
+    letter-spacing: .1px;
+    padding-right: 1ch;
+    display: inline-block;
 }
 
 .selectable {
@@ -85,5 +96,5 @@ p {
 }
 
 .history-entry {
-    margin-bottom: 5px;
+    margin-bottom: 7.5px;
 }

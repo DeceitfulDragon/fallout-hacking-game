@@ -146,7 +146,7 @@ function selectWord(word) {
         const selectionHistory = document.getElementById('selection-history');
 
         historyElement.className = 'history-entry';
-        historyElement.innerHTML = `<div>>${word}</div><div>>ENTRY DENIED</div><div>>Likeness=${correctLetters}</div>`;
+        historyElement.innerHTML = `<div>>${word}</div><div>>Entry denied.</div><div>>Likeness=${correctLetters}</div>`;
 
         selectionHistory.insertBefore(historyElement, selectionHistory.firstChild);
 
