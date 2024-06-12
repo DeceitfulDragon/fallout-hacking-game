@@ -1,4 +1,3 @@
-
 const attemptsAllowed = 4; // Set the number of attempts allowed. 4 is default, but 5 for science bobblehead if I wanna add that
 let attemptsLeft = attemptsAllowed;
 let correctPassword = '';
@@ -17,7 +16,7 @@ function startGame() {
     wordList = getRandomWords(difficulty);
 
     // Randomly select the correct password from the selected word list
-    correctPassword = wordList[Math.floor(Math.random() * wordList.length)]; 
+    correctPassword = wordList[Math.floor(Math.random() * wordList.length)];
 
     attemptsLeft = attemptsAllowed;
 
@@ -30,8 +29,10 @@ function startGame() {
 
 // Get the word list based on given difficulty
 function getRandomWords(difficulty) {
-    const wordPool = words[difficulty];
-    const wordCount = 8;
+    const wordPool = words[difficulty].list;
+    const minCount = words[difficulty].minCount;
+    const maxCount = words[difficulty].maxCount;
+    const wordCount = minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
     const randomWords = [];
     const usedIndices = new Set(); // Keeps track of the words that were used
 
