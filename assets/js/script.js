@@ -4,6 +4,7 @@ let correctPassword = '';
 let wordList = [];
 let selectedChar = 'A';
 const difficulty = 'expert';
+let totalHistoryLines = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Start the game when the page loads
@@ -12,8 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Start game functionality
 function startGame(difficulty) {
+    // Reset history lines count
+    totalHistoryLines = 0;
+
     // Get a word list based on difficulty
-    wordList = getRandomWords(difficulty);
+    wordList = selectRandomWords(difficulty);
 
     // Randomly select the correct password from the selected word list
     correctPassword = wordList[Math.floor(Math.random() * wordList.length)];
@@ -28,7 +32,7 @@ function startGame(difficulty) {
 }
 
 // Get the word list based on given difficulty
-function getRandomWords(difficulty) {
+function selectRandomWords(difficulty) {
     const wordPool = words[difficulty].list;
     const minCount = words[difficulty].minCount;
     const maxCount = words[difficulty].maxCount;
@@ -111,11 +115,11 @@ function generateCombinedList() {
 }
 
 // Generate a line with a boot number, symbols, and possibly a word
+// TODO: Make this more complex to fit the way it shows up in Fallout 4, right now it's just numbers and a letter
 function generateLine(word, lineIndex, totalLines) {
     const symbols = '!@#$%^&*()_+{}|:"<>?-=[];,./'.split('');
 
     // Generate boot number
-    // TODO: Make this more complex to fit the way it shows up in Fallout 4, right now it's just numbers and a letter
     const bootNumber = `0x${selectedChar}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
 
     let line = [{type: 'boot', value: bootNumber}];
@@ -176,14 +180,26 @@ function updateAttempts() {
 function selectWord(word) {
     // Make sure the game isn't already over
     if (attemptsLeft > 0) {
-        const correctLetters = getCorrectLetters(word);
+        const correctLetters = calculateLikeness(word);
         const historyElement = document.createElement('div');
         const selectionHistoryTop = document.getElementById('selection-history-top');
 
         historyElement.className = 'history-entry';
         historyElement.innerHTML = `<div>>${word}</div><div>>Entry denied.</div><div>>Likeness=${correctLetters}</div>`;
 
+        // Remove the oldest entry if the total lines exceed the limit
+        // 15 seems to be the best
+        const entryLines = 3;
+        while (totalHistoryLines + entryLines > 15) {
+            const oldestEntry = selectionHistoryTop.lastChild;
+            const oldestEntryLines = oldestEntry.children.length;
+            totalHistoryLines -= oldestEntryLines;
+            selectionHistoryTop.removeChild(oldestEntry);
+        }
+
+        // Insert the new entry at the beginning
         selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
+        totalHistoryLines += entryLines;
 
         if (correctLetters === word.length) {
             alert('Password Correct!');
@@ -207,7 +223,18 @@ function selectChar(char) {
     historyElement.className = 'history-entry';
     historyElement.innerHTML = `<div>>${char}</div><div>>ERROR</div>`;
 
+    // Remove the oldest entry if the total lines exceed the limit
+    const entryLines = 2;
+    while (totalHistoryLines + entryLines > 15) {
+        const oldestEntry = selectionHistoryTop.lastChild;
+        const oldestEntryLines = oldestEntry.children.length;
+        totalHistoryLines -= oldestEntryLines;
+        selectionHistoryTop.removeChild(oldestEntry);
+    }
+
+    // Insert the new entry at the top
     selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
+    totalHistoryLines += entryLines;
 }
 
 // Show the currently hovered word or character
@@ -217,7 +244,7 @@ function showHovered(item) {
 }
 
 // Get the number of correct letters in a word, calculates the "Likeness" value
-function getCorrectLetters(word) {
+function calculateLikeness(word) {
     let correctLetters = 0;
     for (let i = 0; i < word.length; i++) {
         if (word[i] === correctPassword[i]) {
