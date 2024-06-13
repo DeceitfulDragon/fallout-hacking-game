@@ -3,16 +3,16 @@ let attemptsLeft = attemptsAllowed;
 let correctPassword = '';
 let wordList = [];
 let selectedChar = 'A';
+const difficulty = 'expert';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Start the game when the page loads
-    startGame();
+    startGame(difficulty);
 });
 
 // Start game functionality
-function startGame() {
+function startGame(difficulty) {
     // Get a word list based on difficulty
-    const difficulty = 'novice';
     wordList = getRandomWords(difficulty);
 
     // Randomly select the correct password from the selected word list
@@ -55,11 +55,13 @@ function getRandomWords(difficulty) {
 function displayWords() {
     const column1 = document.getElementById('column1');
     const column2 = document.getElementById('column2');
-    const selectionHistory = document.getElementById('selection-history');
+    const selectionHistoryTop = document.getElementById('selection-history-top');
+    const selectionHistoryBottom = document.getElementById('selection-history-bottom');
     
     column1.innerHTML = '';
     column2.innerHTML = '';
-    selectionHistory.innerHTML = '';
+    selectionHistoryTop.innerHTML = '';
+    selectionHistoryBottom.innerHTML = '> <span class="blinking-cursor">|</span>';
 
     let combinedList = generateCombinedList();
     combinedList.forEach((line, index) => {
@@ -79,9 +81,9 @@ function displayWords() {
 // Format a line item into HTML
 function formatLine(item) {
     if (typeof item === 'string') {
-        return `<p class="selectable" onclick="selectChar('${item}')">${item}</p>`;
+        return `<p class="selectable" onclick="selectChar('${item}')" onmouseover="showHovered('${item}')">${item}</p>`;
     } else if (item.type === 'word') {
-        return `<p class="selectable" data-word="${item.word}" onclick="selectWord('${item.word}')">${item.word}</p>`;
+        return `<p class="selectable" data-word="${item.word}" onclick="selectWord('${item.word}')" onmouseover="showHovered('${item.word}')">${item.word}</p>`;
     } else if (item.type === 'boot') {
         return `<p class="boot-number">${item.value}</p>`;
     }
@@ -91,40 +93,73 @@ function formatLine(item) {
 // Generate a combined list of words and symbols
 function generateCombinedList() {
     const totalLines = 32; // Terminal has 16 lines in each column, makes 32
-    const linesWithWords = wordList.length;
-    let combinedList = [];
+    const linesWithWords = new Set();
+    while (linesWithWords.size < wordList.length) {
+        linesWithWords.add(Math.floor(Math.random() * (totalLines - 1))); // Ensure words are not placed on the last line
+    }
 
+    let combinedList = [];
     for (let i = 0; i < totalLines; i++) {
-        if (i < linesWithWords) {
-            combinedList.push(generateLine(wordList[i]));
+        if (linesWithWords.has(i)) {
+            combinedList.push(generateLine(wordList.pop(), i, totalLines));
         } else {
-            combinedList.push(generateLine(''));
+            combinedList.push(generateLine('', i, totalLines));
         }
     }
 
-    return combinedList.sort(() => Math.random() - 0.5);
+    return combinedList;
 }
 
 // Generate a line with a boot number, symbols, and possibly a word
-function generateLine(word) {
+function generateLine(word, lineIndex, totalLines) {
     const symbols = '!@#$%^&*()_+{}|:"<>?-=[];,./'.split('');
 
+    // Generate boot number
+    // TODO: Make this more complex to fit the way it shows up in Fallout 4, right now it's just numbers and a letter
     const bootNumber = `0x${selectedChar}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
 
     let line = [{type: 'boot', value: bootNumber}];
     const wordLength = word.length;
-    const position = Math.floor(Math.random() * (12 - wordLength));
+    const maxSymbols = 12; // Maximum symbols per line
+    let position = Math.floor(Math.random() * (maxSymbols - wordLength)); // Randomly choose the starting position of the word
 
-    for (let i = 0; i < 12; i++) {
-        if (word && i >= position && i < position + wordLength) {
-            if (i === position) {
-                line.push({type: 'word', word: word});
-            }
-        } else {
-            line.push(symbols[Math.floor(Math.random() * symbols.length)]);
+    // Make sure the word fits in the current line
+    if (word && lineIndex < totalLines - 1) {
+        if (position + wordLength > maxSymbols) {
+            position = maxSymbols - wordLength;
         }
     }
-    return line;
+
+    // Fill the line with either symbols or the word
+    for (let i = 0; i < maxSymbols; i++) {
+        if (word && i >= position && i < position + wordLength) {
+            if (i === position) {
+                line.push({type: 'word', word: word}); // Add the word at chosen position
+            }
+        } else {
+            line.push(symbols[Math.floor(Math.random() * symbols.length)]); // Random symbol
+        }
+    }
+
+    let lines = [line]; // Create a "lines" array with the current line
+
+    // Handle words that span across lines
+    if (lineIndex < totalLines - 1 && position + wordLength > maxSymbols) {
+        const remainingLength = position + wordLength - maxSymbols; // Calc remaining length of the word
+        let nextLine = [{type: 'boot', value: bootNumber}]; // Create the next line with a boot number
+
+        // Fill the next line with the remaining part of the word
+        for (let i = 0; i < maxSymbols; i++) {
+            if (i < remainingLength) {
+                nextLine.push({type: 'word', word: word});
+            } else {
+                nextLine.push(symbols[Math.floor(Math.random() * symbols.length)]); // Random symbol
+            }
+        }
+        lines.push(nextLine); // Add the next line to the lines array
+    }
+    
+    return lines.flat(); // Flatten the lines array to a single array of line elements
 }
 
 // Update the display of remaining attempts
@@ -133,7 +168,7 @@ function updateAttempts() {
     attemptsElement.innerHTML = '';
 
     for (let i = 0; i < attemptsLeft; i++) {
-        attemptsElement.innerHTML += '█ '; // Just using a character instead of drawing squares, might change that later but this is easier!
+        attemptsElement.innerHTML += '█ '; // Just using a character instead of drawing squares, might change that later but this is easier
     }
 }
 
@@ -143,22 +178,22 @@ function selectWord(word) {
     if (attemptsLeft > 0) {
         const correctLetters = getCorrectLetters(word);
         const historyElement = document.createElement('div');
-        const selectionHistory = document.getElementById('selection-history');
+        const selectionHistoryTop = document.getElementById('selection-history-top');
 
         historyElement.className = 'history-entry';
         historyElement.innerHTML = `<div>>${word}</div><div>>Entry denied.</div><div>>Likeness=${correctLetters}</div>`;
 
-        selectionHistory.insertBefore(historyElement, selectionHistory.firstChild);
+        selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
 
         if (correctLetters === word.length) {
             alert('Password Correct!');
-            startGame();
+            startGame(difficulty);
         } else {
             attemptsLeft--;
             updateAttempts();
             if (attemptsLeft === 0) {
                 alert('Terminal Locked Out');
-                startGame();
+                startGame(difficulty);
             }
         }
     }
@@ -167,12 +202,18 @@ function selectWord(word) {
 // Called if you click on a character/symbol instead of a word
 function selectChar(char) {
     const historyElement = document.createElement('div');
-    const selectionHistory = document.getElementById('selection-history');
+    const selectionHistoryTop = document.getElementById('selection-history-top');
 
     historyElement.className = 'history-entry';
     historyElement.innerHTML = `<div>>${char}</div><div>>ERROR</div>`;
 
-    selectionHistory.insertBefore(historyElement, selectionHistory.firstChild);
+    selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
+}
+
+// Show the currently hovered word or character
+function showHovered(item) {
+    const selectionHistoryBottom = document.getElementById('selection-history-bottom');
+    selectionHistoryBottom.innerHTML = `>${item} <span class="blinking-cursor">█</span>`;
 }
 
 // Get the number of correct letters in a word, calculates the "Likeness" value
@@ -188,5 +229,5 @@ function getCorrectLetters(word) {
 
 // Restart the game when the page is refreshed or closed
 window.addEventListener('beforeunload', (event) => {
-    startGame();
+    startGame(difficulty);
 });

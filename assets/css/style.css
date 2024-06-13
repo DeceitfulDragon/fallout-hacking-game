@@ -46,22 +46,44 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    width: 100%;
+    width: 75%;
     height: auto;
 }
 
 #column1, #column2 {
-    width: 40%;
+    width: 50%;
     display: flex;
     flex-direction: column;
 }
 
 #selection-history {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     width: 35%;
+}
+
+#selection-history-top {
+    flex-grow: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column-reverse;
-    justify-content: flex-end;
+}
+
+#selection-history-bottom {
+    height: 5%;
+    display: flex;
+    align-items: center;
+}
+
+.blinking-cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 h1 {
@@ -77,7 +99,7 @@ h2, h3 {
 p {
     display: inline-block;
     margin: 2px 0;
-    letter-spacing: 1.5px; /* Spacing between individual letters */
+    letter-spacing: 1.5px; /* Spacing between individual letters, helps make the words and characters look more uniform */
 }
 
 .boot-number {
