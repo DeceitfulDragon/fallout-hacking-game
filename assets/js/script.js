@@ -172,7 +172,7 @@ function updateAttempts() {
     attemptsElement.innerHTML = '';
 
     for (let i = 0; i < attemptsLeft; i++) {
-        attemptsElement.innerHTML += '█ '; // Just using a character instead of drawing squares, might change that later but this is easier
+        attemptsElement.innerHTML += '▮'; // Just using a character instead of drawing squares, might change that later but this is easier
     }
 }
 

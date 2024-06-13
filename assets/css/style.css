@@ -14,7 +14,7 @@ body {
 #terminal {
     padding: 20px;
     width: 55vw;
-    height: 90vh;
+    height: 85vh;
     max-width: 1350px;
     display: flex;
     flex-direction: column;
@@ -118,5 +118,5 @@ p {
 }
 
 .history-entry {
-    margin-bottom: 7.5px;
+    margin-bottom: 9.5px;
 }
