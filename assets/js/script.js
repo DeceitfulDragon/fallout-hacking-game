@@ -1,9 +1,9 @@
 const attemptsAllowed = 4; // Set the number of attempts allowed. 4 is default, but 5 for science bobblehead if I wanna add that
+const difficulty = 'expert';
 let attemptsLeft = attemptsAllowed;
 let correctPassword = '';
 let wordList = [];
 let selectedChar = 'A';
-const difficulty = 'expert';
 let totalHistoryLines = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +21,7 @@ function startGame(difficulty) {
 
     // Randomly select the correct password from the selected word list
     correctPassword = wordList[Math.floor(Math.random() * wordList.length)];
+    console.log(correctPassword);
 
     attemptsLeft = attemptsAllowed;
 
@@ -115,11 +116,11 @@ function generateCombinedList() {
 }
 
 // Generate a line with a boot number, symbols, and possibly a word
-// TODO: Make this more complex to fit the way it shows up in Fallout 4, right now it's just numbers and a letter
 function generateLine(word, lineIndex, totalLines) {
     const symbols = '!@#$%^&*()_+{}|:"<>?-=[];,./'.split('');
 
     // Generate boot number
+    // TODO: Make this more complex to fit the way it shows up in Fallout 4, right now it's just numbers and a letter
     const bootNumber = `0x${selectedChar}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
 
     let line = [{type: 'boot', value: bootNumber}];
@@ -188,9 +189,9 @@ function selectWord(word) {
         historyElement.innerHTML = `<div>>${word}</div><div>>Entry denied.</div><div>>Likeness=${correctLetters}</div>`;
 
         // Remove the oldest entry if the total lines exceed the limit
-        // 15 seems to be the best
+        // 16 is the how many lines we fit in the hacking columns, so we don't want to extend past that
         const entryLines = 3;
-        while (totalHistoryLines + entryLines > 15) {
+        while (totalHistoryLines + entryLines > 16) {
             const oldestEntry = selectionHistoryTop.lastChild;
             const oldestEntryLines = oldestEntry.children.length;
             totalHistoryLines -= oldestEntryLines;
@@ -225,7 +226,7 @@ function selectChar(char) {
 
     // Remove the oldest entry if the total lines exceed the limit
     const entryLines = 2;
-    while (totalHistoryLines + entryLines > 15) {
+    while (totalHistoryLines + entryLines > 16) {
         const oldestEntry = selectionHistoryTop.lastChild;
         const oldestEntryLines = oldestEntry.children.length;
         totalHistoryLines -= oldestEntryLines;
@@ -257,4 +258,4 @@ function calculateLikeness(word) {
 // Restart the game when the page is refreshed or closed
 window.addEventListener('beforeunload', (event) => {
     startGame(difficulty);
-});
+}); 
