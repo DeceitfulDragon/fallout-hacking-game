@@ -210,6 +210,19 @@ function updateAttempts() {
     }
 }
 
+// Remove the oldest history entry if the total lines exceed the limit
+// Moved into its own function since I call it a few times
+function removeOldestHistoryEntry(entryLines) {
+    const selectionHistoryTop = document.getElementById('selection-history-top');
+
+    while (totalHistoryLines + entryLines > 16) {
+        const oldestEntry = selectionHistoryTop.lastChild;
+        const oldestEntryLines = oldestEntry.children.length;
+        totalHistoryLines -= oldestEntryLines;
+        selectionHistoryTop.removeChild(oldestEntry);
+    }
+}
+
 // Select a word and update the history
 function selectWord(word) {
     // Make sure the game isn't already over
@@ -222,14 +235,8 @@ function selectWord(word) {
         historyElement.innerHTML = `<div>>${word}</div><div>>Entry denied.</div><div>>Likeness=${correctLetters}</div>`;
 
         // Remove the oldest entry if the total lines exceed the limit
-        // 16 is the how many lines we fit in the hacking columns, so we don't want to extend past that
         const entryLines = 3;
-        while (totalHistoryLines + entryLines > 16) {
-            const oldestEntry = selectionHistoryTop.lastChild;
-            const oldestEntryLines = oldestEntry.children.length;
-            totalHistoryLines -= oldestEntryLines;
-            selectionHistoryTop.removeChild(oldestEntry);
-        }
+        removeOldestHistoryEntry(entryLines);
 
         // Insert the new entry at the beginning
         selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
@@ -259,12 +266,7 @@ function selectChar(char) {
 
     // Remove the oldest entry if the total lines exceed the limit
     const entryLines = 2;
-    while (totalHistoryLines + entryLines > 16) {
-        const oldestEntry = selectionHistoryTop.lastChild;
-        const oldestEntryLines = oldestEntry.children.length;
-        totalHistoryLines -= oldestEntryLines;
-        selectionHistoryTop.removeChild(oldestEntry);
-    }
+    removeOldestHistoryEntry(entryLines);
 
     // Insert the new entry at the top
     selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
@@ -293,12 +295,7 @@ function selectDud(value, isReset) {
 
     // Remove the oldest entry if the total lines exceed the limit
     const entryLines = 2;
-    while (totalHistoryLines + entryLines > 16) {
-        const oldestEntry = selectionHistoryTop.lastChild;
-        const oldestEntryLines = oldestEntry.children.length;
-        totalHistoryLines -= oldestEntryLines;
-        selectionHistoryTop.removeChild(oldestEntry);
-    }
+    removeOldestHistoryEntry(entryLines);
 
     // Insert the new entry at the top
     selectionHistoryTop.insertBefore(historyElement, selectionHistoryTop.firstChild);
