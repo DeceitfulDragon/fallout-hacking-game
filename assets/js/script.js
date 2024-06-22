@@ -3,6 +3,7 @@ const difficulty = 'expert';
 let attemptsLeft = attemptsAllowed;
 let correctPassword = '';
 let wordList = [];
+let originalWordList = [];
 let selectedChar = 'A';
 let totalHistoryLines = 0;
 
@@ -18,6 +19,8 @@ function startGame(difficulty) {
 
     // Get a word list based on difficulty
     wordList = selectRandomWords(difficulty);
+    originalWordList = [...wordList]; // Create a copy of the word list
+    console.log(wordList);
 
     // Randomly select the correct password from the selected word list
     correctPassword = wordList[Math.floor(Math.random() * wordList.length)];
@@ -37,6 +40,7 @@ function selectRandomWords(difficulty) {
     const wordPool = words[difficulty].list;
     const minCount = words[difficulty].minCount;
     const maxCount = words[difficulty].maxCount;
+
     const wordCount = minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
     const randomWords = [];
     const usedIndices = new Set(); // Keeps track of the words that were used
@@ -150,7 +154,7 @@ function generateLine(word, lineIndex, totalLines) {
         // Make sure dud doesn't intersect with the word
         if (dudOrResetPosition + dudOrResetLength <= position || dudOrResetPosition >= position + wordLength) {
             const dudOrResetValue = generateDudOrReset(dudOrReset, dudOrResetLength);
-            line.splice(dudOrResetPosition, dudOrResetLength, {type: dudOrReset, value: dudOrResetValue, isReset: hasReset});
+            line.splice(dudOrResetPosition, 0, {type: dudOrReset, value: dudOrResetValue, isReset: hasReset});
         }
     }
 
@@ -283,14 +287,18 @@ function selectDud(value, isReset) {
 
     if (isReset) {
         attemptsLeft = attemptsAllowed;
+        console.log("reset");
     } else {
+        console.log("dud");
         // Remove a random word that is not the correct password
         let randomIndex;
         do {
-            randomIndex = Math.floor(Math.random() * wordList.length);
-        } while (wordList[randomIndex] === correctPassword);
+            randomIndex = Math.floor(Math.random() * originalWordList.length);
+            console.log(originalWordList);
+            console.log(randomIndex);
+        } while (originalWordList[randomIndex] === correctPassword);
 
-        wordList[randomIndex] = '.'.repeat(wordList[randomIndex].length);
+        originalWordList[randomIndex] = '.'.repeat(originalWordList[randomIndex].length);
     }
 
     // Remove the oldest entry if the total lines exceed the limit
