@@ -161,6 +161,8 @@ function generateLine(word, lineIndex, totalLines) {
     const hasReset = Math.random() < resetChance;
     const dudOrReset = hasDud ? 'dud' : hasReset ? 'reset' : '';
 
+    let remainingLength = maxSymbols; // Keep track of the remaining length for the line
+
     if (dudOrReset) {
         const dudOrResetLength = Math.floor(Math.random() * (maxSymbols - 2)) + 2; // Random length for dud/reset
         const dudOrResetPosition = Math.floor(Math.random() * (maxSymbols - dudOrResetLength));
@@ -169,11 +171,12 @@ function generateLine(word, lineIndex, totalLines) {
         if (dudOrResetPosition + dudOrResetLength <= position || dudOrResetPosition >= position + wordLength) {
             const dudOrResetValue = generateDudOrReset(dudOrReset, dudOrResetLength);
             line.splice(dudOrResetPosition, 0, {type: dudOrReset, value: dudOrResetValue, isReset: hasReset});
+            remainingLength -= dudOrResetLength; // Subtract dud/reset length from remaining length
         }
     }
 
     // Fill the line with either symbols or the word
-    for (let i = 0; i < maxSymbols; i++) {
+    for (let i = 0; i < remainingLength; i++) {
         if (word && i >= position && i < position + wordLength) {
             if (i === position) {
                 line.push({type: 'word', word: word});
@@ -191,7 +194,7 @@ function generateLine(word, lineIndex, totalLines) {
         let nextLine = [{type: 'boot', value: bootNumber}]; // Create the next line with a boot number
 
         // Fill the next line with the remaining part of the word
-        for (let i = 0; i < maxSymbols; i++) {
+        for (let i = 0; i < remainingLength; i++) {
             if (i < remainingLength) {
                 nextLine.push({type: 'word', word: word});
             } else {
