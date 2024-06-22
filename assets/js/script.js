@@ -96,7 +96,7 @@ function formatLine(item) {
     } else if (item.type === 'boot') {
         return `<p class="boot-number">${item.value}</p>`;
     } else if (item.type === 'dud') {
-        return `<p class="selectable" onclick="selectDud('${item.value}', ${item.isReset})">${item.value}</p>`;
+        return `<p class="selectable" data-dud="${item.value}" onclick="selectDud('${item.value}', ${item.isReset})">${item.value}</p>`;
     }
     return '';
 }
@@ -227,6 +227,17 @@ function removeOldestHistoryEntry(entryLines) {
     }
 }
 
+// Update the displayed word to periods
+function updateDisplayedWordToPeriods(word) {
+    const wordElements = document.querySelectorAll(`[data-word="${word}"]`);
+    wordElements.forEach(el => {
+        el.textContent = '.'.repeat(word.length);
+        el.classList.remove('selectable'); // Make it unselectable
+        el.removeAttribute('onclick');
+        el.removeAttribute('onmouseover');
+    });
+}
+
 // Select a word and update the history
 function selectWord(word) {
     // Make sure the game isn't already over
@@ -287,19 +298,29 @@ function selectDud(value, isReset) {
 
     if (isReset) {
         attemptsLeft = attemptsAllowed;
-        console.log("reset");
     } else {
-        console.log("dud");
         // Remove a random word that is not the correct password
         let randomIndex;
+        let removedWord;
         do {
             randomIndex = Math.floor(Math.random() * originalWordList.length);
-            console.log(originalWordList);
-            console.log(randomIndex);
-        } while (originalWordList[randomIndex] === correctPassword);
+            removedWord = originalWordList[randomIndex];
+        } while (removedWord === correctPassword || removedWord === '.'.repeat(removedWord.length));
+
+        wordList = wordList.filter(word => word !== removedWord); // Remove the word from wordList
 
         originalWordList[randomIndex] = '.'.repeat(originalWordList[randomIndex].length);
+        updateDisplayedWordToPeriods(removedWord); // Update the displayed word to periods
     }
+
+    // Update the dud to periods
+    const dudElements = document.querySelectorAll(`[data-dud="${value}"]`);
+    dudElements.forEach(el => {
+        el.textContent = '.'.repeat(value.length);
+        el.classList.remove('selectable'); // Make it unselectable
+        el.removeAttribute('onclick');
+        el.removeAttribute('onmouseover');
+    });
 
     // Remove the oldest entry if the total lines exceed the limit
     const entryLines = 2;
