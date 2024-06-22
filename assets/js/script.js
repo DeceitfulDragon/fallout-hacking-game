@@ -96,9 +96,23 @@ function formatLine(item) {
     } else if (item.type === 'boot') {
         return `<p class="boot-number">${item.value}</p>`;
     } else if (item.type === 'dud') {
-        return `<p class="selectable" data-dud="${item.value}" onclick="selectDud('${item.value}', ${item.isReset})">${item.value}</p>`;
+        return `<p class="selectable" data-dud="${escapeHtml(item.value)}" onclick="selectDud('${escapeHtml(item.value)}', ${item.isReset})">${escapeHtml(item.value)}</p>`;
     }
     return '';
+}
+
+// Escape special characters in strings for HTML
+function escapeHtml(string) {
+    return string.replace(/[&<>"']/g, function (match) {
+        const escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return escapeMap[match];
+    });
 }
 
 // Generate a combined list of words and symbols
@@ -314,7 +328,7 @@ function selectDud(value, isReset) {
     }
 
     // Update the dud to periods
-    const dudElements = document.querySelectorAll(`[data-dud="${value}"]`);
+    const dudElements = document.querySelectorAll(`[data-dud="${escapeHtml(value)}"]`);
     dudElements.forEach(el => {
         el.textContent = '.'.repeat(value.length);
         el.classList.remove('selectable'); // Make it unselectable
