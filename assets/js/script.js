@@ -65,12 +65,10 @@ function displayWords() {
     const column1 = document.getElementById('column1');
     const column2 = document.getElementById('column2');
     const selectionHistoryTop = document.getElementById('selection-history-top');
-    const selectionHistoryBottom = document.getElementById('selection-history-bottom');
     
     column1.innerHTML = '';
     column2.innerHTML = '';
     selectionHistoryTop.innerHTML = '';
-    selectionHistoryBottom.innerHTML = '> <span class="blinking-cursor">|</span>';
 
     let combinedList = generateCombinedList();
     combinedList.forEach((line, index) => {
@@ -161,29 +159,33 @@ function generateLine(word, lineIndex, totalLines) {
     const hasReset = Math.random() < resetChance;
     const dudOrReset = hasDud ? 'dud' : hasReset ? 'reset' : '';
 
-    let remainingLength = maxSymbols; // Keep track of the remaining length for the line
+    let remainingLength = maxSymbols - 1; // Keep track of the remaining length for the line
 
     if (dudOrReset) {
         const dudOrResetLength = Math.floor(Math.random() * (maxSymbols - 2)) + 2; // Random length for dud/reset
         const dudOrResetPosition = Math.floor(Math.random() * (maxSymbols - dudOrResetLength));
 
-        // Make sure dud doesn't intersect with the word
+        // Make sure dud doesn't intersect with the word and isn't placed before the boot number
         if (dudOrResetPosition + dudOrResetLength <= position || dudOrResetPosition >= position + wordLength) {
             const dudOrResetValue = generateDudOrReset(dudOrReset, dudOrResetLength);
-            line.splice(dudOrResetPosition, 0, {type: dudOrReset, value: dudOrResetValue, isReset: hasReset});
+            line.push({type: dudOrReset, value: dudOrResetValue, isReset: hasReset, start: dudOrResetPosition, end: dudOrResetPosition + dudOrResetLength});
             remainingLength -= dudOrResetLength; // Subtract dud/reset length from remaining length
         }
     }
 
     // Fill the line with either symbols or the word
-    for (let i = 0; i < remainingLength; i++) {
-        if (word && i >= position && i < position + wordLength) {
-            if (i === position) {
+    let currentPos = 0;
+    for (let i = 0; i < maxSymbols; i++) {
+        if (line.some(item => item.start <= i && item.end > i)) continue; // Skip positions occupied by duds
+
+        if (word && currentPos >= position && currentPos < position + wordLength) {
+            if (currentPos === position) {
                 line.push({type: 'word', word: word});
             }
-        } else if (!line[i]) {
+        } else {
             line.push(symbols[Math.floor(Math.random() * symbols.length)]); // Random symbol
         }
+        currentPos++;
     }
 
     let lines = [line]; // Create a "lines" array with the current line
@@ -194,7 +196,7 @@ function generateLine(word, lineIndex, totalLines) {
         let nextLine = [{type: 'boot', value: bootNumber}]; // Create the next line with a boot number
 
         // Fill the next line with the remaining part of the word
-        for (let i = 0; i < remainingLength; i++) {
+        for (let i = 0; i < maxSymbols; i++) {
             if (i < remainingLength) {
                 nextLine.push({type: 'word', word: word});
             } else {
@@ -244,16 +246,28 @@ function removeOldestHistoryEntry(entryLines) {
     }
 }
 
-// Update the displayed word to periods
-function updateDisplayedWordToPeriods(word) {
-    const wordElements = document.querySelectorAll(`[data-word="${word}"]`);
-    wordElements.forEach(el => {
-        el.textContent = '.'.repeat(word.length);
-        el.classList.remove('selectable'); // Make it unselectable
-        el.removeAttribute('onclick');
-        el.removeAttribute('onmouseover');
-    });
+// Update the displayed word/dud to periods and make it unselectable
+function updateDisplayedWordToPeriods(word, isDud) {
+    if (isDud === true) {
+        const dudElements = document.querySelectorAll(`[data-dud="${word}"]`);
+        dudElements.forEach(el => {
+            el.textContent = '.'.repeat(word.length);
+            el.classList.remove('selectable'); 
+            el.removeAttribute('onclick');
+            el.removeAttribute('onmouseover');
+        });
+    } else {
+        const wordElements = document.querySelectorAll(`[data-word="${word}"]`);
+        wordElements.forEach(el => {
+            el.textContent = '.'.repeat(word.length);
+            el.classList.remove('selectable');
+            el.removeAttribute('onclick');
+            el.removeAttribute('onmouseover');
+        });
+    }
+
 }
+
 
 // Select a word and update the history
 function selectWord(word) {
@@ -327,17 +341,11 @@ function selectDud(value, isReset) {
         wordList = wordList.filter(word => word !== removedWord); // Remove the word from wordList
 
         originalWordList[randomIndex] = '.'.repeat(originalWordList[randomIndex].length);
-        updateDisplayedWordToPeriods(removedWord); // Update the displayed word to periods
+        updateDisplayedWordToPeriods(removedWord, false); // Update the displayed word to periods
     }
 
     // Update the dud to periods
-    const dudElements = document.querySelectorAll(`[data-dud="${escapeHtml(value)}"]`);
-    dudElements.forEach(el => {
-        el.textContent = '.'.repeat(value.length);
-        el.classList.remove('selectable'); // Make it unselectable
-        el.removeAttribute('onclick');
-        el.removeAttribute('onmouseover');
-    });
+    updateDisplayedWordToPeriods(value, true);
 
     // Remove the oldest entry if the total lines exceed the limit
     const entryLines = 2;
