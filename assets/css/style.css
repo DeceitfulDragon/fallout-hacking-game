@@ -1,4 +1,5 @@
 body {
+    user-select: none;
     font-family: 'Share Tech Mono', monospace;
     font-size: 1.5vw;
     background-color: #0f0f0f;
@@ -103,7 +104,7 @@ p {
     font-size: 1.5vw;
     display: inline-block;
     margin: 0.2vh 0;
-    letter-spacing: 0.1em; /* Spacing between individual letters, helps make the words and characters look more uniform */
+    letter-spacing: 0.1em; /* Individual letter spacing */
 }
 
 .boot-number {
