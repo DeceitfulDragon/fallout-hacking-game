@@ -36,12 +36,22 @@ function startGame(difficulty) {
 }
 
 // Get the word list based on given difficulty
+// First, Picks one word length from the difficulty tier's min/max length range
+// Second, filters the words list down to only that length, then picks a random number of words between min/max count
+// This is my best guess as to how Fallout 4 uses the huge FalloutDict.txt word list
 function selectRandomWords(difficulty) {
-    const wordPool = words[difficulty].list;
-    const minCount = words[difficulty].minCount;
-    const maxCount = words[difficulty].maxCount;
+    const config = difficultyConfig[difficulty];
 
-    const wordCount = minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
+    const targetLength = config.minLength +
+        Math.floor(Math.random() * (config.maxLength - config.minLength + 1));
+
+    const wordPool = words.filter(w => w.length === targetLength);
+
+    const wordCount = Math.min(
+        config.minCount + Math.floor(Math.random() * (config.maxCount - config.minCount + 1)),
+        wordPool.length // Guard against asking for more words than exist at this length
+    );
+
     const randomWords = [];
     const usedIndices = new Set(); // Keeps track of the words that were used
 
@@ -49,7 +59,7 @@ function selectRandomWords(difficulty) {
     while (randomWords.length < wordCount) {
         // Select a random index from the word pool
         const randomIndex = Math.floor(Math.random() * wordPool.length);
-        
+
         // Then check if the index has already been used
         if (!usedIndices.has(randomIndex)) {
             randomWords.push(wordPool[randomIndex]);
